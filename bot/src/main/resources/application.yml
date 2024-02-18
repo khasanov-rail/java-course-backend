@@ -1,5 +1,5 @@
 app:
-  telegram-token: unset
+  telegram-token: ${bot.token} # Замените на ваш токен
 
 spring:
   application:
