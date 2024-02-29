@@ -1,14 +1,19 @@
 package edu.java.bot.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 
-@Configuration
+@Validated
+@ConfigurationProperties(prefix = "app", ignoreUnknownFields = false)
 public class BotConfig {
-    @Value("${app.telegram-token}")
-    private String token;
 
-    public String getToken() {
-        return token;
+    private String telegramToken; // Соответствует app.telegram-token в application.yml
+
+    public String getTelegramToken() {
+        return telegramToken;
+    }
+
+    public void setTelegramToken(String telegramToken) {
+        this.telegramToken = telegramToken;
     }
 }

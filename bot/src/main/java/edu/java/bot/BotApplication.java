@@ -23,7 +23,7 @@ public class BotApplication {
         ApplicationContext context = SpringApplication.run(BotApplication.class, args);
         BotConfig botConfig = context.getBean(BotConfig.class);
 
-        TelegramBot bot = new TelegramBot(botConfig.getToken());
+        TelegramBot bot = new TelegramBot(botConfig.getTelegramToken());
         MessageService messageService = new MessageServiceImpl(bot);
         CommandRegistry commandRegistry = new CommandRegistry(messageService);
 

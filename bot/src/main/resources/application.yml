@@ -1,5 +1,5 @@
 app:
-  telegram-token: ${bot.token} # Замените на ваш токен
+  telegram-token: ${TELEGRAM_BOT_TOKEN} # Замените на ваш действительный токен в ${TELEGRAM_BOT_TOKEN}
 
 spring:
   application:
