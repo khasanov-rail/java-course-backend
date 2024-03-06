@@ -13,15 +13,14 @@ import org.springframework.stereotype.Component;
 public class LinkUpdaterScheduler {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LinkUpdaterScheduler.class);
-
-    private final GitHubClient gitHubClient;
-    private final StackOverflowClient stackOverflowClient;
-
     private static final String GITHUB_OWNER = "your-github-owner";
     private static final String GITHUB_REPO_NAME = "your-repo-name";
     private static final String STACK_OVERFLOW_ORDER = "desc";
     private static final String STACK_OVERFLOW_SORT = "activity";
     private static final String STACK_OVERFLOW_SITE = "stackoverflow";
+
+    private final GitHubClient gitHubClient;
+    private final StackOverflowClient stackOverflowClient;
 
     public LinkUpdaterScheduler(GitHubClient gitHubClient, StackOverflowClient stackOverflowClient) {
         this.gitHubClient = gitHubClient;
