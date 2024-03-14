@@ -1,9 +1,9 @@
 package edu.java.bot.dto.response;
 
-public class ChatResponse {
+public class NotificationSettingResponse {
     private String message;
 
-    public ChatResponse(String message) {
+    public NotificationSettingResponse(String message) {
         this.message = message;
     }
 

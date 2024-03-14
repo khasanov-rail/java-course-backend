@@ -1,9 +1,11 @@
 package edu.java.bot.dto.response;
 
-public class ChatResponse {
+public class UserSettingsUpdateResponse {
     private String message;
 
-    public ChatResponse(String message) {
+    public UserSettingsUpdateResponse() {}
+
+    public UserSettingsUpdateResponse(String message) {
         this.message = message;
     }
 
