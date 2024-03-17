@@ -11,6 +11,7 @@ import edu.java.bot.handler.TrackHandler;
 import edu.java.bot.handler.UntrackHandler;
 import edu.java.bot.service.MessageService;
 import edu.java.bot.service.MessageServiceImpl;
+import edu.java.bot.service.ScrapperClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -22,15 +23,19 @@ public class BotApplication {
     public static void main(String[] args) {
         ApplicationContext context = SpringApplication.run(BotApplication.class, args);
         BotConfig botConfig = context.getBean(BotConfig.class);
-
         TelegramBot bot = new TelegramBot(botConfig.getTelegramToken());
         MessageService messageService = new MessageServiceImpl(bot);
+        ScrapperClient scrapperClient =
+            context.getBean(ScrapperClient.class); // Получаем ScrapperClient из контекста Spring
         CommandRegistry commandRegistry = new CommandRegistry(messageService);
 
         // Регистрация обработчиков
         commandRegistry.registerHandler("/start", new StartHandler(messageService));
         commandRegistry.registerHandler("/help", new HelpHandler(messageService));
-        commandRegistry.registerHandler("/track", new TrackHandler(messageService));
+        commandRegistry.registerHandler(
+            "/track",
+            new TrackHandler(messageService, scrapperClient)
+        ); // Передаем ScrapperClient в TrackHandler
         commandRegistry.registerHandler("/untrack", new UntrackHandler(messageService));
         commandRegistry.registerHandler("/list", new ListHandler(messageService));
 
