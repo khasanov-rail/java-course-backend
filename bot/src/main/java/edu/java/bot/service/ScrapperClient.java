@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface ScrapperClient {
     Mono<GitHubInfoResponse> fetchGitHubInfo(GitHubInfoRequest request);
+
     Mono<StackOverflowInfoResponse> fetchStackOverflowInfo(StackOverflowInfoRequest request);
 }
 

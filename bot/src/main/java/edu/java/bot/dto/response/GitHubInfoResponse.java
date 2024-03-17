@@ -4,7 +4,6 @@ public class GitHubInfoResponse {
     private String fullName;
     private String description;
 
-    // Getters and Setters
     public String getFullName() {
         return fullName;
     }

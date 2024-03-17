@@ -9,7 +9,6 @@ public class GitHubOwner {
     @JsonProperty("id")
     private long id;
 
-    // Геттеры и сеттеры
     public String getLogin() {
         return login;
     }

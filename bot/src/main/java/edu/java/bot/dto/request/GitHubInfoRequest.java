@@ -4,7 +4,6 @@ public class GitHubInfoRequest {
     private String owner;
     private String repoName;
 
-    // Getters and Setters
     public String getOwner() {
         return owner;
     }

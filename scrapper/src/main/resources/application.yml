@@ -8,7 +8,7 @@ api:
   github:
     baseUrl: "https://api.github.com"
   stackoverflow:
-    baseUrl: "https://api.stackexchange.com/2.3"
+    baseUrl: "https://api.stackexchange.com"
   bot:
     base-url: http://localhost:8090
 

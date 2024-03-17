@@ -20,7 +20,7 @@ public class BotClientImpl implements BotClient {
     public Mono<BotResponse> sendNotification(String chatId, String message) {
         return webClient.post()
             .uri("/chat") // предполагаемый эндпоинт для отправки уведомлений
-            .bodyValue(new NotificationRequest(chatId, message)) // предполагается, что существует соответствующий запрос DTO
+            .bodyValue(new NotificationRequest(chatId, message))
             .retrieve()
             .bodyToMono(BotResponse.class);
     }

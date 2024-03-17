@@ -17,7 +17,6 @@ public class GitHubResponse {
     public GitHubResponse() {
     }
 
-    // Геттеры и сеттеры
     public GitHubOwner getOwner() {
         return owner;
     }

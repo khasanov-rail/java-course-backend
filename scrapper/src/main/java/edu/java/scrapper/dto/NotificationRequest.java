@@ -12,7 +12,6 @@ public class NotificationRequest {
         this.message = message;
     }
 
-    // Геттеры
     public String getChatId() {
         return chatId;
     }
@@ -21,7 +20,6 @@ public class NotificationRequest {
         return message;
     }
 
-    // Сеттеры
     public void setChatId(String chatId) {
         this.chatId = chatId;
     }

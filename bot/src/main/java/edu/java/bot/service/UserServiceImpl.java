@@ -17,14 +17,14 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("Пользователь с таким именем уже существует.");
         }
         // Здесь реализация логики регистрации пользователя
-        // Например, сохранение данных пользователя в базу данных (пропущено для упрощения)
+        // Например, сохранение данных пользователя в базу данных
         return new UserRegistrationResponse("Пользователь успешно зарегистрирован с именем: " + request.getUsername());
     }
 
     @Override
     public UserSettingsUpdateResponse updateUserSettings(UserSettingsUpdateRequest request) {
         // Здесь реализация логики обновления настроек пользователя
-        // Например, обновление информации в базе данных (пропущено для упрощения)
+        // Например, обновление информации в базе данных
         return new UserSettingsUpdateResponse("Настройки пользователя успешно обновлены.");
     }
 }

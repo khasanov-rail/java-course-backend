@@ -10,7 +10,7 @@ public class NotificationServiceImpl implements NotificationService {
     @Override
     public NotificationSettingResponse updateNotificationSettings(NotificationSettingRequest request) {
         // Здесь реализация обновления настроек уведомлений
-        // Например, обновление в БД (пропущено для упрощения)
+        // Например, обновление в БД
         return new NotificationSettingResponse("Notification settings updated to: " + request.isEnableNotifications());
     }
 }

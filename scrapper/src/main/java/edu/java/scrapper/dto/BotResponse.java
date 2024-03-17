@@ -4,7 +4,6 @@ public class BotResponse {
     private String status;
     private String message;
 
-    // Геттеры
     public String getStatus() {
         return status;
     }
@@ -13,7 +12,6 @@ public class BotResponse {
         return message;
     }
 
-    // Сеттеры
     public void setStatus(String status) {
         this.status = status;
     }
