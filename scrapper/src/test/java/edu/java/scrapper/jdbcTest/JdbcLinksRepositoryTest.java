@@ -6,7 +6,6 @@ import edu.java.scrapper.domain.repositoty.JdbcChatsRepository;
 import edu.java.scrapper.domain.repositoty.JdbcLinksRepository;
 import edu.java.scrapper.integrationTest.IntegrationEnvironment;
 import java.net.URI;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -85,7 +84,7 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Поиск ссылок для проверки")
     void findLinksToCheckTest() {
-        List<Link> linkList = linksRepository.findLinksToCheck(LocalDateTime.now().minusNanos(1));
+        List<Link> linkList = linksRepository.findLinksToCheck(OffsetDateTime.now().minusNanos(1));
 
         Assertions.assertEquals(1L, linkList.get(0).getId());
         Assertions.assertEquals(testUrl, linkList.get(0).getUrl().toString());
