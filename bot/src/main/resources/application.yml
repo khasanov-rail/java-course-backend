@@ -1,5 +1,5 @@
 app:
-  telegram-token: ${TELEGRAM_BOT_TOKEN} # Замените на ваш действительный токен в ${TELEGRAM_BOT_TOKEN}
+  telegram-token: "6084238422:AAH-0qZf9gQvsdKmJbjCipJmPPZmd-fJB24" # Замените на ваш действительный токен в ${TELEGRAM_BOT_TOKEN}
 
 spring:
   application:
@@ -12,3 +12,11 @@ server:
 
 logging:
   config: classpath:log4j2-plain.xml
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
+
+api:
+  scrapper:
+    base-url: http://localhost:8090
