@@ -1,9 +1,9 @@
 package edu.java.scrapper.service.jdbc;
 
-import edu.java.scrapper.domain.model.Link;
 import edu.java.scrapper.domain.repositoty.JdbcLinksRepository;
 import edu.java.scrapper.exception.custom.LinkNotFoundException;
 import edu.java.scrapper.exception.custom.ReAddingLinkException;
+import edu.java.scrapper.model.Link;
 import edu.java.scrapper.service.LinkService;
 import edu.java.scrapper.service.TgChatService;
 import java.net.URI;

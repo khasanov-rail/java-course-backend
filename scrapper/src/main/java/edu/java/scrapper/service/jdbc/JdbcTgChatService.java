@@ -1,10 +1,10 @@
 package edu.java.scrapper.service.jdbc;
 
-import edu.java.scrapper.domain.model.Chat;
 import edu.java.scrapper.domain.repositoty.JdbcChatsRepository;
 import edu.java.scrapper.dto.api.request.AddChatRequest;
 import edu.java.scrapper.exception.custom.ChatIdNotFoundException;
 import edu.java.scrapper.exception.custom.ReRegistrationException;
+import edu.java.scrapper.model.Chat;
 import edu.java.scrapper.service.TgChatService;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,10 @@
 package edu.java.scrapper.client.impl;
 
 import edu.java.scrapper.client.BotClient;
+import edu.java.scrapper.dto.api.response.ApiErrorResponse;
 import edu.java.scrapper.dto.bot.LinkUpdateResponse;
+import edu.java.scrapper.exception.api.ApiBadRequestException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -19,6 +22,10 @@ public class BotClientImpl implements BotClient {
             .uri("/updates")
             .body(BodyInserters.fromValue(linkUpdateRequest))
             .retrieve()
+            .onStatus(
+                HttpStatus.BAD_REQUEST::equals,
+                response -> response.bodyToMono(ApiErrorResponse.class).map(ApiBadRequestException::new)
+            )
             .toEntity(Void.class)
             .block();
     }

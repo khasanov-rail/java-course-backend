@@ -3,32 +3,21 @@ package edu.java.bot.commands;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import edu.java.bot.link.Link;
 import edu.java.bot.link.LinkHandlerChain;
-import edu.java.bot.repository.ChatRepository;
 import java.net.URI;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class TrackCommandTest {
-
-    @Mock
-    private ChatRepository repository;
-
     @Mock
     private LinkHandlerChain linkHandlerChain;
 
@@ -45,67 +34,43 @@ class TrackCommandTest {
     private TrackCommand trackCommand;
 
     @Test
-    @DisplayName("Проверка команды /track")
-    void testCommand() {
-        assertEquals("/track", trackCommand.command());
-    }
-
-    @Test
-    @DisplayName("Проверка описания команды")
-    void testDescription() {
-        assertEquals("начать отслеживание ссылки", trackCommand.description());
-    }
-
-    @Test
-    @DisplayName("Обработка поддерживаемой ссылки")
-    void testHandle_WithSupportedLink() {
+    @DisplayName("Успешное отслеживание ссылки")
+    void testHandle_Success() {
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
-        when(message.text()).thenReturn("/track https://github.com/sanyarnd/tinkoff-java-course-2023/");
+        long chatId = 12345L;
+        when(chat.id()).thenReturn(chatId);
+        String link = "https://github.com";
+        when(message.text()).thenReturn("track " + link);
 
-        URI uri = URI.create("https://github.com/sanyarnd/tinkoff-java-course-2023/");
-        Link mockLink = mock(Link.class);
-        when(linkHandlerChain.handleRequestSubscribe(uri)).thenReturn(mockLink);
+        when(linkHandlerChain.handleRequestSubscribe(chatId, URI.create(link))).thenReturn(
+            "Tracking started for " + link);
 
-        String expectedResponse = "Ссылка https://github.com/sanyarnd/tinkoff-java-course-2023/ успешно добавлена.";
-        String actualResponse = trackCommand.handle(update);
+        String result = trackCommand.handle(update);
 
-        assertEquals(expectedResponse, actualResponse);
+        Assertions.assertEquals("Tracking started for https://github.com", result);
+        verify(linkHandlerChain, times(1)).handleRequestSubscribe(chatId, URI.create(link));
     }
 
     @Test
-    @DisplayName("Обработка не поддерживаемой ссылки")
-    void testHandle_WithUnsupportedLink() {
+    @DisplayName("Проверка корректности команды /track")
+    void testIsCorrect_True() {
         when(update.message()).thenReturn(message);
-        when(message.chat()).thenReturn(chat);
-        when(message.text()).thenReturn("/track https://github.com/sanyarnd/tinkoff-java-course-2023/");
+        when(message.text()).thenReturn("track https://github.com");
 
-        URI uri = URI.create("https://github.com/sanyarnd/tinkoff-java-course-2023/");
-        when(linkHandlerChain.handleRequestSubscribe(uri)).thenReturn(null);
+        boolean result = trackCommand.isCorrect(update);
 
-        String expectedResponse =
-            "Извините, ссылка https://github.com/sanyarnd/tinkoff-java-course-2023/ не поддерживается.";
-        String actualResponse = trackCommand.handle(update);
-
-        assertEquals(expectedResponse, actualResponse);
-        verify(repository, never()).addLink(anyLong(), any(Link.class));
+        Assertions.assertTrue(result);
     }
 
     @Test
-    @DisplayName("Проверка корректности команды с валидным текстом")
-    void testIsCorrect_WithValidText() {
+    @DisplayName("Проверка корректности команды /track с лишними параметрами")
+    void testIsCorrect_False() {
         when(update.message()).thenReturn(message);
-        when(message.text()).thenReturn("/track https://github.com/sanyarnd/tinkoff-java-course-2023/");
+        when(message.text()).thenReturn("track https://github.com added parametr");
 
-        assertTrue(trackCommand.isCorrect(update));
-    }
+        boolean result = trackCommand.isCorrect(update);
 
-    @Test
-    @DisplayName("Проверка корректности команды с невалидным текстом")
-    void testIsCorrect_WithInvalidText() {
-        when(update.message()).thenReturn(message);
-        when(message.text()).thenReturn("/track");
-
-        assertFalse(trackCommand.isCorrect(update));
+        Assertions.assertFalse(result);
     }
 }

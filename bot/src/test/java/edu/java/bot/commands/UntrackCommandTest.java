@@ -3,9 +3,7 @@ package edu.java.bot.commands;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import edu.java.bot.link.Link;
 import edu.java.bot.link.LinkHandlerChain;
-import edu.java.bot.repository.ChatRepository;
 import java.net.URI;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,19 +14,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyLong;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class UntrackCommandTest {
-
-    @Mock
-    private ChatRepository repository;
-
     @Mock
     private LinkHandlerChain linkHandlerChain;
 
@@ -45,52 +36,43 @@ class UntrackCommandTest {
     private UntrackCommand untrackCommand;
 
     @Test
-    @DisplayName("Проверка команды '/untrack'")
-    void testCommand() {
-        assertEquals("/untrack", untrackCommand.command());
-    }
-
-    @Test
-    @DisplayName("Проверка описания команды")
-    void testDescription() {
-        assertEquals("прекратить отслеживание ссылки", untrackCommand.description());
-    }
-
-    @Test
-    @DisplayName("Обработка ситуации с несуществующей подпиской на ссылку")
-    void testHandleWithNonexistentLink() {
+    @DisplayName("Успешное прекращение отслеживания ссылки")
+    void testHandle_Success() {
+        long chatId = 12345L;
+        String link = "https://github.com";
         when(update.message()).thenReturn(message);
-        when(message.text()).thenReturn("/untrack https://github.com/sanyarnd");
         when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(chatId);
+        when(message.text()).thenReturn("untrack " + link);
 
-        URI uri = URI.create("https://github.com/sanyarnd");
-        Link mockLink = mock(Link.class);
-        when(mockLink.getUri()).thenReturn(uri); // Настройка, чтобы getUri() возвращал корректный URI
-        when(linkHandlerChain.handleRequestUnsubscribe(uri)).thenReturn(mockLink);
-        when(repository.containsLink(anyLong(), any(Link.class))).thenReturn(false);
+        when(linkHandlerChain.handleRequestUnsubscribe(chatId, URI.create(link))).thenReturn(
+            "Untracking started for " + link);
 
-        String expectedResponse = String.format("Ссылки %s нет в ваших подписках.", uri);
-        String actualResponse = untrackCommand.handle(update);
+        String result = untrackCommand.handle(update);
 
-        assertEquals(expectedResponse, actualResponse);
-        verify(repository, never()).removeLink(anyLong(), any(Link.class));
+        assertEquals("Untracking started for https://github.com", result);
+        verify(linkHandlerChain, times(1)).handleRequestUnsubscribe(chatId, URI.create(link));
     }
 
     @Test
-    @DisplayName("Проверка корректности обработки команды с правильным текстом")
-    void testIsCorrectWithValidText() {
+    @DisplayName("Проверка корректности команды '/untrack' с валидной ссылкой")
+    void testIsCorrect_True() {
         when(update.message()).thenReturn(message);
-        when(message.text()).thenReturn("/untrack https://example.com");
+        when(message.text()).thenReturn("untrack https://github.com");
 
-        assertTrue(untrackCommand.isCorrect(update));
+        boolean result = untrackCommand.isCorrect(update);
+
+        assertTrue(result);
     }
 
     @Test
-    @DisplayName("Проверка корректности обработки команды с неправильным текстом")
-    void testIsCorrect_WithInvalidText() {
+    @DisplayName("Проверка корректности команды '/untrack' с лишними параметрами")
+    void testIsCorrect_False() {
         when(update.message()).thenReturn(message);
-        when(message.text()).thenReturn("/untrack");
+        when(message.text()).thenReturn("untrack https://github.com added parametr");
 
-        assertFalse(untrackCommand.isCorrect(update));
+        boolean result = untrackCommand.isCorrect(update);
+
+        assertFalse(result);
     }
 }

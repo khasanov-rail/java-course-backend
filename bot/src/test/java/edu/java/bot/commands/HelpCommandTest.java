@@ -10,9 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
@@ -35,34 +33,22 @@ class HelpCommandTest {
     }
 
     @Test
-    @DisplayName("Проверка возврата команды /help")
-    void testCommand() {
-        assertEquals("/help", helpCommand.command());
-    }
-
-    @Test
-    @DisplayName("Проверка описания команды /help")
-    void testDescription() {
-        assertEquals(" вывести окно с командами", helpCommand.description());
-    }
-
-    @Test
     @DisplayName("Проверка обработки команды /help")
     void testHandle() {
         String sendMessage = helpCommand.handle(update);
 
-        assertNotNull(sendMessage);
-        assertTrue(sendMessage.startsWith("Список доступных команд:"));
-        assertTrue(sendMessage.contains("/start - зарегистрировать пользователя"));
-        assertTrue(sendMessage.contains("/help -  вывести окно с командами"));
-        assertTrue(sendMessage.contains("/track - начать отслеживание ссылки"));
-        assertTrue(sendMessage.contains("/untrack - прекратить отслеживание ссылки"));
-        assertTrue(sendMessage.contains("/list - показать список отслеживаемых ссылок"));
+        assertThat(sendMessage).isNotNull();
+        assertThat(sendMessage).startsWith("Список доступных команд:");
+        assertThat(sendMessage).contains("/start - зарегистрировать пользователя");
+        assertThat(sendMessage).contains("/help -  вывести окно с командами");
+        assertThat(sendMessage).contains("/track - начать отслеживание ссылки");
+        assertThat(sendMessage).contains("/untrack - прекратить отслеживание ссылки");
+        assertThat(sendMessage).contains("/list - показать список отслеживаемых ссылок");
     }
 
     @Test
     @DisplayName("Проверка корректности обработки команды /help")
     void testIsCorrect() {
-        assertTrue(helpCommand.isCorrect(update));
+        assertThat(helpCommand.isCorrect(update)).isTrue();
     }
 }

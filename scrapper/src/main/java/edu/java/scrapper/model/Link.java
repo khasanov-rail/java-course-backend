@@ -1,4 +1,4 @@
-package edu.java.scrapper.domain.model;
+package edu.java.scrapper.model;
 
 import java.net.URI;
 import java.time.OffsetDateTime;
