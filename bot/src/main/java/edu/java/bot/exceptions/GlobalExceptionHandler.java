@@ -5,7 +5,6 @@ import edu.java.bot.exceptions.custom.ChatIdNotFoundException;
 import edu.java.bot.exceptions.custom.CustomApiException;
 import edu.java.bot.exceptions.custom.LinkNotFoundException;
 import java.util.Arrays;
-import java.util.stream.Collectors;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,7 +23,7 @@ public class GlobalExceptionHandler {
             e.getMessage(),
             Arrays.stream(e.getStackTrace())
                 .map(StackTraceElement::toString)
-                .collect(Collectors.toList())
+                .toList()
         );
     }
 
@@ -38,7 +37,7 @@ public class GlobalExceptionHandler {
             e.getMessage(),
             Arrays.stream(e.getStackTrace())
                 .map(StackTraceElement::toString)
-                .collect(Collectors.toList())
+                .toList()
         );
     }
 }
