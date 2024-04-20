@@ -36,7 +36,7 @@ public class GitHubClientTest {
 
     @BeforeAll
     public static void setUp() {
-        wireMockServer = new WireMockServer(3000);
+        wireMockServer = new WireMockServer(3003);
         wireMockServer.start();
         baseUrl = "http://localhost:" + wireMockServer.port();
         RetryBackoffSpec retry = Retry.backoff(5, Duration.ofMillis(10))
