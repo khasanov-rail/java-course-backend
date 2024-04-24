@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 public class HelpCommand implements Command {
-    private final edu.java.bot.commands.CommandInfo commandInfo = edu.java.bot.commands.CommandInfo.HELP;
+    private final CommandInfo commandInfo = CommandInfo.HELP;
 
     @Override
     public String command() {
@@ -19,7 +19,7 @@ public class HelpCommand implements Command {
 
     @Override
     public String handle(Update update) {
-        return Arrays.stream(edu.java.bot.commands.CommandInfo.values())
+        return Arrays.stream(CommandInfo.values())
             .map(command -> command.getCommand() + " - " + command.getDescription())
             .collect(Collectors.joining("\n", "Список доступных команд:\n", "\n"));
     }

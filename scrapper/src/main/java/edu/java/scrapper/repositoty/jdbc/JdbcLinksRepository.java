@@ -1,4 +1,4 @@
-package edu.java.scrapper.domain.repositoty;
+package edu.java.scrapper.repositoty.jdbc;
 
 import edu.java.scrapper.model.Link;
 import java.time.OffsetDateTime;
