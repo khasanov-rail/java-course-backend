@@ -20,6 +20,9 @@ public class KafkaProducerConfiguration {
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
 
+    @Value("${spring.kafka.topic}")
+    private String updatesTopic;
+
     private Map<String, Object> producerConfig() {
         Map<String, Object> properties = new HashMap<>();
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
@@ -37,5 +40,14 @@ public class KafkaProducerConfiguration {
         ProducerFactory<Long, LinkUpdateResponse> producerFactory
     ) {
         return new KafkaTemplate<>(producerFactory());
+    }
+
+    // Добавленные методы
+    public String getBootstrapServers() {
+        return bootstrapServers;
+    }
+
+    public String getUpdatesTopic() {
+        return updatesTopic;
     }
 }
