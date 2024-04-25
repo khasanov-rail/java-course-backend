@@ -19,6 +19,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
+@Transactional
 public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
 
     @Autowired
