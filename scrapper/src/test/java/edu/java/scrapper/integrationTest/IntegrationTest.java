@@ -1,14 +1,19 @@
 package edu.java.scrapper.integrationTest;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
-import static edu.java.scrapper.integrationTest.IntegrationEnvironment.POSTGRES;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class IntegrationTest {
+public class IntegrationTest extends IntegrationEnvironment {
+
+    @BeforeAll
+    static void setupContainer() {
+        IntegrationEnvironment.setup();
+    }
 
     @Test
     @DisplayName("Проверка соединения с базой данных")
