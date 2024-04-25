@@ -35,7 +35,6 @@ public class JdbcChatsRepository {
 
     @Transactional
     public void deleteAll() {
-        // Удаляем все связи и чаты
         jdbcTemplate.update("delete from link_chat");
         jdbcTemplate.update("delete from links");
         jdbcTemplate.update("delete from chats");
