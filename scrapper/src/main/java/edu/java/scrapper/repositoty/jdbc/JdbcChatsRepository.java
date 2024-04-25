@@ -22,6 +22,8 @@ public class JdbcChatsRepository {
     @Transactional
     public void remove(long tgChatId) {
         jdbcTemplate.update("delete from chats where id = ?", tgChatId);
+        // Удаляем связи в link_chat перед удалением ссылок, чтобы избежать нарушения целостности
+        jdbcTemplate.update("delete from link_chat where chatId = ?", tgChatId);
         jdbcTemplate.update("delete from links where id not in (select distinct linkId from link_chat)");
     }
 
@@ -30,5 +32,12 @@ public class JdbcChatsRepository {
         List<Chat> chats = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(Chat.class), tgChatId);
         return chats.stream().findFirst();
     }
-}
 
+    @Transactional
+    public void deleteAll() {
+        // Удаляем все связи и чаты
+        jdbcTemplate.update("delete from link_chat");
+        jdbcTemplate.update("delete from links");
+        jdbcTemplate.update("delete from chats");
+    }
+}

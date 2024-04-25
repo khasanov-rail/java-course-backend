@@ -75,4 +75,15 @@ public class JdbcLinksRepository {
         String updateSql = "update links set checkedAt = ? where id = ?";
         jdbcTemplate.update(updateSql, time, linkId);
     }
+
+    // Методы для удаления всех записей из таблиц
+    @Transactional
+    public void deleteAllLinks() {
+        jdbcTemplate.update("DELETE FROM links");
+    }
+
+    @Transactional
+    public void deleteAllLinkChats() {
+        jdbcTemplate.update("DELETE FROM link_chat");
+    }
 }

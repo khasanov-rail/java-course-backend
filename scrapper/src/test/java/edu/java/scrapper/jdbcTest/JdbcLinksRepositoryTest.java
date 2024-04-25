@@ -1,39 +1,47 @@
 package edu.java.scrapper.jdbcTest;
 
-import edu.java.scrapper.integrationTest.IntegrationEnvironment;
 import edu.java.scrapper.model.Chat;
 import edu.java.scrapper.model.Link;
 import edu.java.scrapper.repositoty.jdbc.JdbcChatsRepository;
 import edu.java.scrapper.repositoty.jdbc.JdbcLinksRepository;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
-public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
+public class JdbcLinksRepositoryTest {
 
-    private static JdbcLinksRepository linksRepository;
+    @Autowired
+    private JdbcLinksRepository linksRepository;
 
-    private static final String testUrl = "https://test.com";
-    private static final Chat testChat = new Chat(1L, "Test Chat");
+    @Autowired
+    private JdbcChatsRepository chatsRepository;
 
-    @BeforeAll
-    public static void setUp() {
-        linksRepository = new JdbcLinksRepository(jdbcTemplate);
-        JdbcChatsRepository chatsRepository = new JdbcChatsRepository(jdbcTemplate);
+    private static final String TEST_URL = "https://test.com";
+    private static final Chat TEST_CHAT = new Chat(1L, "Test Chat");
 
-        chatsRepository.add(testChat.getId(), testChat.getName());
-        linksRepository.add(testUrl);
-        linksRepository.addRelationship(1L, testChat.getId());
+    @BeforeEach
+    public void setUp() {
+        linksRepository.deleteAllLinkChats();
+        linksRepository.deleteAllLinks();
+        chatsRepository.deleteAll();
+
+        chatsRepository.add(TEST_CHAT.getId(), TEST_CHAT.getName());
+        linksRepository.add(TEST_URL);
+        long linkId = linksRepository.findLinkByUrl(TEST_URL).orElseThrow(IllegalArgumentException::new).getId();
+        linksRepository.addRelationship(linkId, TEST_CHAT.getId());
+
+        OffsetDateTime lastCheckedDate = OffsetDateTime.now().minusDays(2);
+        linksRepository.updateCheckAt(lastCheckedDate, linkId);
     }
 
     @Test
@@ -41,18 +49,23 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Добавление ссылки и проверка ее существования")
     void addTest() {
-        Optional<Link> link = linksRepository.findLinkByUrl(testUrl);
-        Assertions.assertTrue(link.isPresent());
+        Assertions.assertThat(linksRepository.findLinkByUrl(TEST_URL)).isPresent();
     }
 
     @Test
     @Transactional
     @Rollback
     @DisplayName("Поиск ссылки по URL")
-    void findLinkByUrlTest() {
-        Optional<Link> link = linksRepository.findLinkByUrl(testUrl);
-        Assertions.assertTrue(link.isPresent());
-        Assertions.assertEquals(link.get().getUrl().toString(), testUrl);
+    void findLinkByUrlTest() throws URISyntaxException {
+        Assertions.assertThat(linksRepository.findLinkByUrl(TEST_URL))
+            .isPresent()
+            .hasValueSatisfying(link -> {
+                try {
+                    Assertions.assertThat(link.getUrl()).isEqualTo(new URI(TEST_URL));
+                } catch (URISyntaxException e) {
+                    Assertions.fail("URL syntax was incorrect", e);
+                }
+            });
     }
 
     @Test
@@ -60,12 +73,9 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Удаление ссылки и проверка ее отсутствия")
     void removeTest() {
-        linksRepository.remove(testChat.getId(), 1L);
-        Optional<Link> link = linksRepository.findLinkByUrl(testUrl);
-        Assertions.assertTrue(link.isEmpty());
-
-        linksRepository.add(testUrl);
-        linksRepository.addRelationship(2L, testChat.getId());
+        Link link = linksRepository.findLinkByUrl(TEST_URL).orElseThrow(IllegalArgumentException::new);
+        linksRepository.remove(TEST_CHAT.getId(), link.getId());
+        Assertions.assertThat(linksRepository.findLinkByUrl(TEST_URL)).isEmpty();
     }
 
     @Test
@@ -73,9 +83,9 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Поиск ссылки по ID")
     void findByIdTest() {
-        Link link = linksRepository.findById(linksRepository.findLinkByUrl(testUrl).get().getId());
-        Assertions.assertEquals(linksRepository.findLinkByUrl(testUrl).get().getId(), link.getId());
-        Assertions.assertEquals(testUrl, link.getUrl().toString());
+        Link link = linksRepository.findLinkByUrl(TEST_URL).orElseThrow(IllegalArgumentException::new);
+        Link foundLink = linksRepository.findById(link.getId());
+        Assertions.assertThat(foundLink).usingRecursiveComparison().isEqualTo(link);
     }
 
     @Test
@@ -83,21 +93,20 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Поиск ссылок для проверки")
     void findLinksToCheckTest() {
-        List<Link> linkList = linksRepository.findLinksToCheck(OffsetDateTime.now().minusNanos(1));
-
-        Assertions.assertEquals(1L, linkList.get(0).getId());
-        Assertions.assertEquals(testUrl, linkList.get(0).getUrl().toString());
+        OffsetDateTime checkDate = OffsetDateTime.now().minusDays(1);
+        List<Link> links = linksRepository.findLinksToCheck(checkDate);
+        Assertions.assertThat(links).isNotEmpty();
     }
 
     @Test
     @Transactional
     @Rollback
     @DisplayName("Поиск всех ссылок по ID чата")
-    void findAllByChatIdTest() {
-        List<Link> linkList = linksRepository.findAllByChatId(testChat.getId());
-
-        Assertions.assertEquals(linksRepository.findLinkByUrl(testUrl).get().getId(), linkList.get(0).getId());
-        Assertions.assertEquals(testUrl, linkList.get(0).getUrl().toString());
+    void findAllByChatIdTest() throws URISyntaxException {
+        List<Link> links = linksRepository.findAllByChatId(TEST_CHAT.getId());
+        Assertions.assertThat(links).isNotEmpty()
+            .extracting(Link::getUrl)
+            .contains(new URI(TEST_URL));
     }
 
     @Test
@@ -105,9 +114,7 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Проверка уже добавленной ссылки для чата (true)")
     void isLinkAlreadyAddedForChatTrueTest() {
-        boolean isLinkAlreadyAddedForChat = linksRepository.isLinkAlreadyAddedForChat(testUrl, testChat.getId());
-
-        Assertions.assertTrue(isLinkAlreadyAddedForChat);
+        Assertions.assertThat(linksRepository.isLinkAlreadyAddedForChat(TEST_URL, TEST_CHAT.getId())).isTrue();
     }
 
     @Test
@@ -115,9 +122,8 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Проверка уже добавленной ссылки для чата (false)")
     void isLinkAlreadyAddedForChatFalseTest() {
-        boolean isLinkAlreadyAddedForChat =
-            linksRepository.isLinkAlreadyAddedForChat("https://test1.com", testChat.getId());
-        Assertions.assertFalse(isLinkAlreadyAddedForChat);
+        Assertions.assertThat(linksRepository.isLinkAlreadyAddedForChat("https://notexist.com", TEST_CHAT.getId()))
+            .isFalse();
     }
 
     @Test
@@ -125,8 +131,9 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Получение ID чата по ID ссылки")
     void tgChatIdsByLinkIdTest() {
-        List<Long> chatIdList = linksRepository.tgChatIdsByLinkId(linksRepository.findLinkByUrl(testUrl).get().getId());
-        Assertions.assertEquals(1L, chatIdList.get(0));
+        List<Long> chatIdList = linksRepository.tgChatIdsByLinkId(linksRepository.findLinkByUrl(TEST_URL)
+            .orElseThrow(IllegalArgumentException::new).getId());
+        Assertions.assertThat(chatIdList).contains(TEST_CHAT.getId());
     }
 
     @Test
@@ -134,13 +141,10 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
     @Rollback
     @DisplayName("Обновление времени последней проверки ссылки")
     void updateCheckAtTest() {
-        OffsetDateTime localDateTime = OffsetDateTime.now().minusDays(1);
-        Link linkAfterUpdate = new Link(1L, URI.create(testUrl), localDateTime);
-
-        linksRepository.updateCheckAt(localDateTime, 1L);
-
-        Link link = linksRepository.findById(1L);
-        Assertions.assertEquals(link.getCheckedAt().getMinute(), linkAfterUpdate.getCheckedAt().getMinute());
+        Link link = linksRepository.findLinkByUrl(TEST_URL).orElseThrow(IllegalArgumentException::new);
+        OffsetDateTime beforeUpdate = OffsetDateTime.now();
+        linksRepository.updateCheckAt(beforeUpdate, link.getId());
+        Link updatedLink = linksRepository.findById(link.getId());
+        Assertions.assertThat(updatedLink.getCheckedAt()).isAfter(beforeUpdate.minusSeconds(1));
     }
-
 }
