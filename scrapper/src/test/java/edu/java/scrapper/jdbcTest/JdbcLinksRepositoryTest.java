@@ -1,5 +1,6 @@
 package edu.java.scrapper.jdbcTest;
 
+import edu.java.scrapper.integrationTest.IntegrationEnvironment;
 import edu.java.scrapper.model.Chat;
 import edu.java.scrapper.model.Link;
 import edu.java.scrapper.repositoty.jdbc.JdbcChatsRepository;
@@ -18,7 +19,7 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-public class JdbcLinksRepositoryTest {
+public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
 
     @Autowired
     private JdbcLinksRepository linksRepository;
