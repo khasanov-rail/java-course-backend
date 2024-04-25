@@ -8,11 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-public class IntegrationTest extends IntegrationEnvironment { // Убедитесь, что класс наследует IntegrationEnvironment
+public class IntegrationTest extends IntegrationEnvironment {
 
     @BeforeAll
     static void setupContainer() {
-        IntegrationEnvironment.setup(); // Вызов метода setup, который мы определили в IntegrationEnvironment
+        IntegrationEnvironment.setup();
     }
 
     @Test
