@@ -15,23 +15,23 @@ import org.springframework.stereotype.Component;
 public class ScrapperQueueProducer implements NotificationService {
     private final KafkaTemplate<Long, LinkUpdateResponse> kafkaProducer;
 
-    private static final Logger logger = LoggerFactory.getLogger(ScrapperQueueProducer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScrapperQueueProducer.class);
 
     @Value("${spring.kafka.topic}")
     private String topic;
 
     @PostConstruct
     public void logConfig() {
-        logger.info("Используется тема Kafka: {}", topic);
+        LOGGER.info("Используется тема Kafka: {}", topic);
     }
 
     @Override
     public void sendNotification(LinkUpdateResponse update) {
         if (topic == null) {
-            logger.error("Kafka topic is null");
+            LOGGER.error("Kafka topic is null");
             throw new IllegalStateException("Kafka topic has not been set");
         }
         kafkaProducer.send(topic, update);
-        logger.info("Message sent to Kafka: {}", update);
+        LOGGER.info("Message sent to Kafka: {}", update);
     }
 }

@@ -13,7 +13,6 @@ public class TopicConfig {
 
     @Bean
     public NewTopic newTopic() {
-        System.out.println("Creating new topic with name: " + updatesTopic);
         return new NewTopic(updatesTopic, 1, (short) 1);
     }
 }
