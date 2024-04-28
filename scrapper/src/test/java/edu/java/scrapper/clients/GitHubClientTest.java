@@ -1,14 +1,11 @@
 package edu.java.scrapper.clients;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import edu.java.scrapper.client.GitHubClient;
 import edu.java.scrapper.client.impl.GitHubClientImpl;
 import edu.java.scrapper.dto.github.GitHubDTO;
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,24 +14,10 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class GitHubClientTest {
-    private static WireMockServer wireMockServer;
-    private static String baseUrl;
-
-    @BeforeAll
-    public static void setUp() {
-        wireMockServer = new WireMockServer(3000);
-        wireMockServer.start();
-        baseUrl = "http://localhost:" + wireMockServer.port();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        wireMockServer.stop();
-    }
+public class GitHubClientTest extends AbstractWiremockTest {
 
     @Test
     @DisplayName("Тестирование получения списка событий из репозитория")
