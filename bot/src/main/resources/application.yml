@@ -16,7 +16,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:29091
     trusted-packages: "*"
-    dlq-topic: dql-topic
+    dlq-topic: dlq-topic
     topic: updates
     group-id: updates1
 
