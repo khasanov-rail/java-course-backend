@@ -1,14 +1,17 @@
 package edu.java.scrapper.jdbcTest;
 
-import edu.java.scrapper.model.Chat;
 import edu.java.scrapper.domain.repositoty.JdbcChatsRepository;
 import edu.java.scrapper.integrationTest.IntegrationEnvironment;
+import edu.java.scrapper.model.Chat;
 import java.util.Optional;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +22,17 @@ public class JdbcChatsRepositoryTest extends IntegrationEnvironment {
     private JdbcChatsRepository chatsRepository;
 
     private static final Chat testChat = new Chat(11L, "Test Chat");
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    @AfterEach
+    public void cleanUp() {
+        Cache cache = cacheManager.getCache("rate-limit-buckets-scrapper");
+        if (cache != null) {
+            cache.clear();
+        }
+    }
 
     @Test
     @Transactional
