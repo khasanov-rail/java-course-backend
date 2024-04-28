@@ -1,14 +1,14 @@
-package edu.java.bot;
+package edu.java.scrapper;
 
-import edu.java.bot.configuration.ApplicationConfig;
+import edu.java.scrapper.configuration.ApplicationProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties(ApplicationConfig.class)
-public class BotApplication {
+@EnableConfigurationProperties(ApplicationProperties.class)
+public class ScrapperApplication {
     public static void main(String[] args) {
-        SpringApplication.run(BotApplication.class, args);
+        SpringApplication.run(ScrapperApplication.class, args);
     }
 }

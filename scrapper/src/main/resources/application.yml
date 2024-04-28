@@ -1,15 +1,28 @@
 app:
   scheduler:
     enable: true
-    interval: 10s
+    interval: 30s
     force-check-delay: 10s
+
 
 spring:
   application:
     name: scrapper
 
 server:
-  port: 8080
+  port: 8099
 
 logging:
   config: classpath:log4j2-plain.xml
+
+api:
+  git-hub:
+    default-url: https://api.github.com
+  stackoverflow:
+    default-url: https://api.stackexchange.com/2.3
+  bot:
+    base-url: http://localhost:8090
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui
