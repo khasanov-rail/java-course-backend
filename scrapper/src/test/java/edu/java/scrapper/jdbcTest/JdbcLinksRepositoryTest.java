@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,15 +34,22 @@ public class JdbcLinksRepositoryTest extends IntegrationEnvironment {
 
     @BeforeEach
     public void setUp() {
+        cleanUpDatabase();
+        prepareTestData();
+    }
+
+    @AfterEach
+    public void cleanUpDatabase() {
         linksRepository.deleteAllLinkChats();
         linksRepository.deleteAllLinks();
         chatsRepository.deleteAll();
+    }
 
+    private void prepareTestData() {
         chatsRepository.add(TEST_CHAT.getId(), TEST_CHAT.getName());
         linksRepository.add(TEST_URL);
         long linkId = linksRepository.findLinkByUrl(TEST_URL).orElseThrow(IllegalArgumentException::new).getId();
         linksRepository.addRelationship(linkId, TEST_CHAT.getId());
-
         OffsetDateTime lastCheckedDate = OffsetDateTime.now().minusDays(2);
         linksRepository.updateCheckAt(lastCheckedDate, linkId);
     }
