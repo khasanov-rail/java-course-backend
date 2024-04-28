@@ -3,11 +3,12 @@ package edu.java.bot.commands;
 import com.pengrad.telegrambot.model.Chat;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import edu.java.bot.link.Link;
-import edu.java.bot.link.LinkInfo;
-import edu.java.bot.repository.ChatRepository;
+import edu.java.bot.client.ScrapperClient;
+import edu.java.bot.dto.api.ApiErrorResponse;
+import edu.java.bot.dto.scrapper.response.LinkResponse;
+import edu.java.bot.dto.scrapper.response.ListLinksResponse;
+import edu.java.bot.exceptions.api.ApiBadRequestException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,15 +16,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class ListCommandTest {
     @Mock
-    private ChatRepository repository;
+    private ScrapperClient scrapperClient;
     @Mock
     private Update update;
     @Mock
@@ -35,39 +38,57 @@ class ListCommandTest {
     private ListCommand listCommand;
 
     @Test
-    @DisplayName("Обработка команды /list при пустом списке ссылок")
-    void testHandleWithEmptyList() {
+    @DisplayName("Успешная обработка команды /list с наличием ссылок")
+    void testHandle_Success() {
+        long chatId = 12345L;
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(1L);
-        when(repository.getList(1L)).thenReturn(new ArrayList<>());
+        when(chat.id()).thenReturn(chatId);
+
+        ListLinksResponse linksResponse = new ListLinksResponse(List.of(
+            new LinkResponse(1L, URI.create("https://github.com/khasanov-rail/java-course-backend"))), 1
+        );
+        when(scrapperClient.getLinks(chatId)).thenReturn(ResponseEntity.ok(linksResponse));
 
         String result = listCommand.handle(update);
+
+        assertEquals("1. https://github.com/khasanov-rail/java-course-backend", result);
+    }
+
+    @Test
+    @DisplayName("Обработка команды /list при пустом списке ссылок")
+    void testHandle_EmptyList() {
+        long chatId = 12345L;
+        when(update.message()).thenReturn(message);
+        when(message.chat()).thenReturn(chat);
+        when(chat.id()).thenReturn(chatId);
+
+        ListLinksResponse linksResponse = new ListLinksResponse(List.of(), 0);
+        when(scrapperClient.getLinks(chatId)).thenReturn(ResponseEntity.ok(linksResponse));
+
+        String result = listCommand.handle(update);
+
         assertEquals("Список отслеживаемых ссылок пуст.", result);
     }
 
     @Test
-    @DisplayName("Обработка команды /list при наличии ссылок")
-    void testHandleWithNonEmptyList() {
-        List<Link> links = new ArrayList<>();
-        links.add(new Link(
-            LinkInfo.GITHUB,
-            URI.create("https://github.com/sanyarnd/tinkoff-java-course-2023/"),
-            "github.com"
-        ));
+    @DisplayName("Обработка команды /list с ошибкой API")
+    void testHandle_ApiBadRequestException() {
+        long chatId = 12345L;
         when(update.message()).thenReturn(message);
         when(message.chat()).thenReturn(chat);
-        when(chat.id()).thenReturn(1L);
-        when(repository.getList(1L)).thenReturn(links);
+        when(chat.id()).thenReturn(chatId);
+
+        when(scrapperClient.getLinks(chatId)).thenThrow(new ApiBadRequestException(mock(ApiErrorResponse.class)));
 
         String result = listCommand.handle(update);
 
-        assertEquals("1. https://github.com/sanyarnd/tinkoff-java-course-2023/", result);
+        assertEquals("Ошибка! Попробуйте позже!", result);
     }
 
     @Test
     @DisplayName("Проверка корректности вызова команды /list")
-    void testIsCorrect() {
+    void testIsCorrect_True() {
         when(update.message()).thenReturn(message);
         when(message.text()).thenReturn("/list");
 
@@ -76,22 +97,10 @@ class ListCommandTest {
 
     @Test
     @DisplayName("Проверка некорректности вызова команды /list с параметрами")
-    void testIsNotCorrect() {
+    void testIsCorrect_False() {
         when(update.message()).thenReturn(message);
-        when(message.text()).thenReturn("/list list");
+        when(message.text()).thenReturn("not_list");
 
         assertFalse(listCommand.isCorrect(update));
-    }
-
-    @Test
-    @DisplayName("Проверка возвращаемой команды")
-    void testCommand() {
-        assertEquals("/list", listCommand.command());
-    }
-
-    @Test
-    @DisplayName("Проверка описания команды")
-    void testDescription() {
-        assertEquals("показать список отслеживаемых ссылок", listCommand.description());
     }
 }

@@ -1,6 +1,6 @@
 package edu.java.scrapper.domain.repositoty;
 
-import edu.java.scrapper.domain.model.Chat;
+import edu.java.scrapper.model.Chat;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;

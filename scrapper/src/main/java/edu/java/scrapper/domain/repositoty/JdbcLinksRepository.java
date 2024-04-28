@@ -1,6 +1,6 @@
 package edu.java.scrapper.domain.repositoty;
 
-import edu.java.scrapper.domain.model.Link;
+import edu.java.scrapper.model.Link;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;

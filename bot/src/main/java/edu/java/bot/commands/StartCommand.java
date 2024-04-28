@@ -1,13 +1,16 @@
 package edu.java.bot.commands;
 
 import com.pengrad.telegrambot.model.Update;
-import edu.java.bot.repository.ChatRepository;
-import lombok.AllArgsConstructor;
+import edu.java.bot.client.ScrapperClient;
+import edu.java.bot.dto.scrapper.request.AddChatRequest;
+import edu.java.bot.exceptions.api.ApiBadRequestException;
+import edu.java.bot.exceptions.api.ApiReAddingException;
+import lombok.RequiredArgsConstructor;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class StartCommand implements Command {
-    private final ChatRepository repository;
-    private static final edu.java.bot.commands.CommandInfo COMMAND_INFO = edu.java.bot.commands.CommandInfo.START;
+    private final ScrapperClient client;
+    private static final CommandInfo COMMAND_INFO = CommandInfo.START;
 
     @Override
     public String command() {
@@ -21,16 +24,18 @@ public class StartCommand implements Command {
 
     @Override
     public String handle(Update update) {
-        long id = update.message().chat().id();
         String message;
-
-        if (repository.isRegistered(id)) {
-            message = "Извините, но данный аккаунт уже зарегистрирован.";
-        } else {
-            repository.register(id);
+        try {
+            client.addChat(
+                update.message().chat().id(),
+                new AddChatRequest(update.message().chat().username())
+            );
             message = "Регистрация прошла успешно. Добро пожаловать!";
+        } catch (ApiReAddingException e) {
+            message = e.getApiErrorResponse().description();
+        } catch (ApiBadRequestException e) {
+            message = "Ошибка! Попробуйте позже!";
         }
-
         return message;
     }
 

@@ -1,4 +1,4 @@
-package edu.java.scrapper.domain.model;
+package edu.java.scrapper.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,7 +1,7 @@
 package edu.java.scrapper.jdbcTest;
 
-import edu.java.scrapper.domain.model.Chat;
-import edu.java.scrapper.domain.model.Link;
+import edu.java.scrapper.model.Chat;
+import edu.java.scrapper.model.Link;
 import edu.java.scrapper.domain.repositoty.JdbcChatsRepository;
 import edu.java.scrapper.domain.repositoty.JdbcLinksRepository;
 import edu.java.scrapper.integrationTest.IntegrationEnvironment;

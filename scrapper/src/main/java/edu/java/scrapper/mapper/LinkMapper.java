@@ -1,7 +1,7 @@
 package edu.java.scrapper.mapper;
 
-import edu.java.scrapper.domain.model.Link;
 import edu.java.scrapper.dto.api.response.LinkResponse;
+import edu.java.scrapper.model.Link;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
