@@ -1,5 +1,6 @@
 package edu.java.scrapper.clients;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import edu.java.scrapper.client.GitHubClient;
 import edu.java.scrapper.client.impl.GitHubClientImpl;
 import edu.java.scrapper.configuration.retry.RetryProperties;
@@ -8,9 +9,13 @@ import edu.java.scrapper.exception.custom.ResourceUnavailableException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -19,17 +24,19 @@ import reactor.util.retry.RetryBackoffSpec;
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.Assert.assertThrows;
 
-public class GitHubClientTest extends AbstractWiremockTest {
-
+@ExtendWith(MockitoExtension.class)
+public class GitHubClientTest {
+    private static WireMockServer wireMockServer;
+    private static String baseUrl;
     private static RetryProperties retryProperties;
 
     @BeforeAll
     public static void setUp() {
-        AbstractWiremockTest.setUpWireMockServer();
-
+        wireMockServer = new WireMockServer(3000);
+        wireMockServer.start();
+        baseUrl = "http://localhost:" + wireMockServer.port();
         RetryBackoffSpec retry = Retry.backoff(5, Duration.ofMillis(10))
             .filter(throwable -> throwable instanceof ResourceUnavailableException ||
                 throwable instanceof WebClientRequestException)
@@ -37,6 +44,11 @@ public class GitHubClientTest extends AbstractWiremockTest {
                 throw new ResourceUnavailableException("Try later", HttpStatus.SERVICE_UNAVAILABLE);
             });
         retryProperties = new RetryProperties(List.of(HttpStatus.FORBIDDEN), retry);
+    }
+
+    @AfterAll
+    public static void tearDown() {
+        wireMockServer.stop();
     }
 
     @Test
@@ -76,9 +88,9 @@ public class GitHubClientTest extends AbstractWiremockTest {
 
         List<GitHubDTO> gitHubDTO = gitHubClient.fetchRepo(owner, repo);
 
-        assertEquals(owner, gitHubDTO.get(0).actor().login());
-        assertEquals(fullName, gitHubDTO.get(0).repo().url());
-        assertEquals(OffsetDateTime.parse(pushedAt), gitHubDTO.get(0).createdAt());
+        Assertions.assertEquals(owner, gitHubDTO.get(0).actor().login());
+        Assertions.assertEquals(fullName, gitHubDTO.get(0).repo().url());
+        Assertions.assertEquals(OffsetDateTime.parse(pushedAt), gitHubDTO.get(0).createdAt());
     }
 
     @Test
@@ -96,4 +108,3 @@ public class GitHubClientTest extends AbstractWiremockTest {
         assertThrows(WebClientResponseException.class, () -> gitHubClient.fetchRepo(owner, repo));
     }
 }
-
