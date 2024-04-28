@@ -20,24 +20,27 @@ public class UserMessageProcessor {
         Long chatId = update.message().chat().id();
         String commandFromChat = CommandUtils.getCommand(update.message().text());
 
-        for (Command commandName : commands) {
-            if (commandName.command().equals(commandFromChat)) {
-                if (!commandName.isCorrect(update)) {
-                    return new SendMessage(chatId, "Команда введена не корректно.");
-                }
-
-                if (!commandName.supports(update, repository)) {
-                    return new SendMessage(
-                        chatId,
-                        "Эта команда доступна только для зарегистрированных пользователей. "
-                            + "Пожалуйста, зарегистрируйтесь для доступа к ней."
-                    );
-                }
-
-                return new SendMessage(chatId, commandName.handle(update));
+        for (Command command : commands) {
+            if (command.command().equals(commandFromChat)) {
+                return processCommand(chatId, command, update);
             }
         }
         return new SendMessage(chatId, "Неизвестная команда.");
     }
 
+    private SendMessage processCommand(Long chatId, Command command, Update update) {
+        if (!command.isCorrect(update)) {
+            return new SendMessage(chatId, "Команда введена некорректно.");
+        }
+
+        if (!command.isAccessibleFor(update, repository)) {
+            String responseText = """
+                Эта команда доступна только для зарегистрированных пользователей.
+                Пожалуйста, зарегистрируйтесь для доступа к ней.
+                """;
+            return new SendMessage(chatId, responseText);
+        }
+
+        return new SendMessage(chatId, command.handle(update));
+    }
 }

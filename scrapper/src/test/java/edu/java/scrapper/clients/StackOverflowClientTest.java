@@ -1,13 +1,10 @@
 package edu.java.scrapper.clients;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import edu.java.scrapper.client.StackOverflowClient;
 import edu.java.scrapper.client.impl.StackOverflowClientImpl;
 import edu.java.scrapper.dto.stackoverflow.StackOverflowDTO;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,21 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class StackOverflowClientTest {
-    private static WireMockServer wireMockServer;
-    private static String baseUrl;
-
-    @BeforeAll
-    public static void setUp() {
-        wireMockServer = new WireMockServer(3000);
-        wireMockServer.start();
-        baseUrl = "http://localhost:" + wireMockServer.port();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        wireMockServer.stop();
-    }
+public class StackOverflowClientTest extends AbstractWiremockTest {
 
     @Test
     @DisplayName("Тестирование получения ответов по идентификатору вопроса")
@@ -42,11 +25,19 @@ public class StackOverflowClientTest {
         StackOverflowClient stackOverflowClient = new StackOverflowClientImpl(baseUrl);
         long questionId = 67890;
         OffsetDateTime creationDate = OffsetDateTime.now(ZoneOffset.UTC);
-        String responseBody = String.format(
-            "{\"items\": [{\"owner\": {\"display_name\": \"New User\"}, \"creation_date\": \"%s\", \"question_id\": %d}]}",
-            creationDate,
-            questionId
-        );
+        String responseBody = String.format("""
+            {
+                "items": [
+                    {
+                        "owner": {
+                            "display_name": "New User"
+                        },
+                        "creation_date": "%s",
+                        "question_id": %d
+                    }
+                ]
+            }
+            """, creationDate, questionId);
 
         wireMockServer.stubFor(get(urlEqualTo(
             "/questions/" + questionId + "/answers?order=desc&site=stackoverflow"))
@@ -58,7 +49,7 @@ public class StackOverflowClientTest {
         StackOverflowDTO stackOverflowDTO = stackOverflowClient.fetchAnswersByQuestionId(questionId);
 
         assertEquals(1, stackOverflowDTO.items().size());
-        StackOverflowDTO.Item item = stackOverflowDTO.items().get(0); // используем get(0), так как это более стандартный способ доступа к элементам списка
+        StackOverflowDTO.Item item = stackOverflowDTO.items().get(0);
         assertEquals(questionId, item.questionId());
         assertEquals(creationDate.withOffsetSameInstant(ZoneOffset.UTC), item.creationDate());
         assertEquals("New User", item.owner().displayName());

@@ -17,7 +17,7 @@ public interface Command {
         return new BotCommand(command(), description());
     }
 
-    default boolean supports(Update update, ChatRepository repository) {
+    default boolean isAccessibleFor(Update update, ChatRepository repository) {
         if (command().equals(edu.java.bot.commands.CommandInfo.START.getCommand())
             ||
             command().equals(edu.java.bot.commands.CommandInfo.HELP.getCommand())) {
