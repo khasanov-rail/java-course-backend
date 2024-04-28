@@ -1,5 +1,6 @@
 package edu.java.scrapper.controller;
 
+import edu.java.scrapper.dto.api.request.AddChatRequest;
 import edu.java.scrapper.dto.api.response.ApiErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -7,8 +8,10 @@ import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -33,7 +36,7 @@ public interface TgChatApi {
         produces = {"application/json"}
     )
     ResponseEntity<Void> removeChat(
-        @Parameter(name = "id", required = true, in = ParameterIn.PATH) @PathVariable("id") Long id
+        @Parameter(name = "id", required = true, in = ParameterIn.PATH) @PathVariable("id") Long tgChatId
     );
 
     @Operation(
@@ -52,7 +55,9 @@ public interface TgChatApi {
         produces = {"application/json"}
     )
     ResponseEntity<Void> addChat(
-        @Parameter(name = "id", required = true, in = ParameterIn.PATH) @PathVariable("id") Long id
+        @Parameter(name = "id", required = true, in = ParameterIn.PATH) @PathVariable("id") Long tgChatId,
+        @Parameter(name = "AddChatRequest", required = true) @Valid @RequestBody
+        AddChatRequest addChatRequest
     );
 
 }
