@@ -12,3 +12,4 @@ public record LinkUpdateResponse(
     @NotBlank String description,
     @NotEmpty List<Long> tgChatIds) {
 }
+

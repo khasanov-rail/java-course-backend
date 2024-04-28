@@ -22,4 +22,3 @@ public class LinkHandlerChain {
         return firstHandler.unsubscribe(tgChatId, uri);
     }
 }
-

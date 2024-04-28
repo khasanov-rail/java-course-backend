@@ -1,4 +1,4 @@
-package edu.java.scrapper.domain.repositoty;
+package edu.java.scrapper.repositoty.jdbc;
 
 import edu.java.scrapper.model.Link;
 import java.time.OffsetDateTime;
@@ -74,5 +74,16 @@ public class JdbcLinksRepository {
     public void updateCheckAt(OffsetDateTime time, long linkId) {
         String updateSql = "update links set checkedAt = ? where id = ?";
         jdbcTemplate.update(updateSql, time, linkId);
+    }
+
+    // Методы для удаления всех записей из таблиц
+    @Transactional
+    public void deleteAllLinks() {
+        jdbcTemplate.update("DELETE FROM links");
+    }
+
+    @Transactional
+    public void deleteAllLinkChats() {
+        jdbcTemplate.update("DELETE FROM link_chat");
     }
 }

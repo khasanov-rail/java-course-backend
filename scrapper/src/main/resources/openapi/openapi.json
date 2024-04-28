@@ -5,7 +5,7 @@
         "version": "1.0.0",
         "contact": {
             "name": "scrapper",
-            "url": "http://localhost:8099"
+            "url": "http://localhost:8080"
         }
     },
     "paths": {

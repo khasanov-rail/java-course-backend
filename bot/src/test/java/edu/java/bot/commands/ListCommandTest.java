@@ -10,11 +10,13 @@ import edu.java.bot.dto.scrapper.response.ListLinksResponse;
 import edu.java.bot.exceptions.api.ApiBadRequestException;
 import java.net.URI;
 import java.util.List;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -79,7 +81,7 @@ class ListCommandTest {
         when(message.chat()).thenReturn(chat);
         when(chat.id()).thenReturn(chatId);
 
-        when(scrapperClient.getLinks(chatId)).thenThrow(new ApiBadRequestException(mock(ApiErrorResponse.class)));
+        when(scrapperClient.getLinks(chatId)).thenThrow(new ApiBadRequestException(Mockito.mock(ApiErrorResponse.class)));
 
         String result = listCommand.handle(update);
 
