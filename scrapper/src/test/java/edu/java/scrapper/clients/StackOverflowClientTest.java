@@ -20,57 +20,52 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 public class StackOverflowClientTest extends AbstractWiremockTest {
 
     @Test
-    @DisplayName("Тестирование получения данных о вопросе")
-    public void testFetchQuestion() {
+    @DisplayName("Тестирование получения ответов по идентификатору вопроса")
+    public void testFetchAnswersByQuestionId() {
         StackOverflowClient stackOverflowClient = new StackOverflowClientImpl(baseUrl);
         long questionId = 67890;
-        OffsetDateTime lastActivityDate = OffsetDateTime.now(ZoneOffset.UTC);
-        long answerCount = 10;
-        String responseBody = """
+        OffsetDateTime creationDate = OffsetDateTime.now(ZoneOffset.UTC);
+        String responseBody = String.format("""
             {
                 "items": [
                     {
                         "owner": {
-                            "account_id": 98765,
                             "display_name": "New User"
                         },
-                        "last_activity_date": "%s",
-                        "question_id": %d,
-                        "answer_count": %d
+                        "creation_date": "%s",
+                        "question_id": %d
                     }
                 ]
             }
-            """.formatted(lastActivityDate, questionId, answerCount);
+            """, creationDate, questionId);
 
         wireMockServer.stubFor(get(urlEqualTo(
-            "/questions/" + questionId + "?order=desc&sort=activity&site=stackoverflow"))
+            "/questions/" + questionId + "/answers?order=desc&site=stackoverflow"))
             .willReturn(aResponse()
                 .withStatus(200)
                 .withHeader("Content-Type", "application/json")
                 .withBody(responseBody)));
 
-        StackOverflowDTO stackOverflowDTO = stackOverflowClient.fetchQuestion(questionId);
+        StackOverflowDTO stackOverflowDTO = stackOverflowClient.fetchAnswersByQuestionId(questionId);
 
         assertEquals(1, stackOverflowDTO.items().size());
         StackOverflowDTO.Item item = stackOverflowDTO.items().get(0);
         assertEquals(questionId, item.questionId());
-        assertEquals(answerCount, item.answerCount());
-        assertEquals(lastActivityDate.withOffsetSameInstant(ZoneOffset.UTC), item.lastActivityDate());
-        assertEquals(98765, item.owner().accountId());
+        assertEquals(creationDate.withOffsetSameInstant(ZoneOffset.UTC), item.creationDate());
         assertEquals("New User", item.owner().displayName());
     }
 
     @Test
-    @DisplayName("Тестирование обработки ошибки 404 для нового вопроса")
-    public void testFetchQuestion_NotFound() {
+    @DisplayName("Тестирование обработки ошибки 404 при запросе ответов")
+    public void testFetchAnswersByQuestionId_NotFound() {
         StackOverflowClient stackOverflowClient = new StackOverflowClientImpl(baseUrl);
 
         long questionId = 123;
         wireMockServer.stubFor(get(urlEqualTo(
-            "/questions/" + questionId + "?order=desc&sort=activity&site=stackoverflow"))
+            "/questions/" + questionId + "/answers?order=desc&site=stackoverflow"))
             .willReturn(aResponse()
                 .withStatus(404)));
 
-        assertThrows(WebClientResponseException.class, () -> stackOverflowClient.fetchQuestion(questionId));
+        assertThrows(WebClientResponseException.class, () -> stackOverflowClient.fetchAnswersByQuestionId(questionId));
     }
 }
