@@ -11,7 +11,7 @@ public abstract class AbstractWiremockTest {
 
     @BeforeAll
     public static void setUpWireMockServer() {
-        wireMockServer = new WireMockServer(3002);
+        wireMockServer = new WireMockServer(3000);
         wireMockServer.start();
         baseUrl = "http://localhost:" + wireMockServer.port();
     }
