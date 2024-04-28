@@ -33,7 +33,7 @@ public class StackOverflowClientTest {
 
     @BeforeAll
     public static void setUp() {
-        wireMockServer = new WireMockServer(5500);
+        wireMockServer = new WireMockServer(3003);
         wireMockServer.start();
         baseUrl = "http://localhost:" + wireMockServer.port();
     }
