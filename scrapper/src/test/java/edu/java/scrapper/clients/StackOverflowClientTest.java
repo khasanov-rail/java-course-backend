@@ -1,13 +1,10 @@
 package edu.java.scrapper.clients;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import edu.java.scrapper.client.StackOverflowClient;
 import edu.java.scrapper.client.impl.StackOverflowClientImpl;
 import edu.java.scrapper.dto.stackoverflow.StackOverflowDTO;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,21 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class StackOverflowClientTest {
-    private static WireMockServer wireMockServer;
-    private static String baseUrl;
-
-    @BeforeAll
-    public static void setUp() {
-        wireMockServer = new WireMockServer(3000);
-        wireMockServer.start();
-        baseUrl = "http://localhost:" + wireMockServer.port();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        wireMockServer.stop();
-    }
+public class StackOverflowClientTest extends AbstractWiremockTest {
 
     @Test
     @DisplayName("Тестирование получения данных о вопросе")
@@ -44,7 +27,19 @@ public class StackOverflowClientTest {
         OffsetDateTime lastActivityDate = OffsetDateTime.now(ZoneOffset.UTC);
         long answerCount = 10;
         String responseBody = """
-            {"items": [{"owner": {"account_id": 98765, "display_name": "New User"}, "last_activity_date": "%s", "question_id": %d, "answer_count": %d}]}
+            {
+                "items": [
+                    {
+                        "owner": {
+                            "account_id": 98765,
+                            "display_name": "New User"
+                        },
+                        "last_activity_date": "%s",
+                        "question_id": %d,
+                        "answer_count": %d
+                    }
+                ]
+            }
             """.formatted(lastActivityDate, questionId, answerCount);
 
         wireMockServer.stubFor(get(urlEqualTo(
@@ -57,7 +52,7 @@ public class StackOverflowClientTest {
         StackOverflowDTO stackOverflowDTO = stackOverflowClient.fetchQuestion(questionId);
 
         assertEquals(1, stackOverflowDTO.items().size());
-        StackOverflowDTO.Item item = stackOverflowDTO.items().getFirst();
+        StackOverflowDTO.Item item = stackOverflowDTO.items().get(0);
         assertEquals(questionId, item.questionId());
         assertEquals(answerCount, item.answerCount());
         assertEquals(lastActivityDate.withOffsetSameInstant(ZoneOffset.UTC), item.lastActivityDate());
