@@ -70,3 +70,4 @@ public class GitHubClientTest extends AbstractWiremockTest {
         assertThrows(WebClientResponseException.class, () -> gitHubClient.fetchRepo(owner, repo));
     }
 }
+
