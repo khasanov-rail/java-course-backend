@@ -1,6 +1,5 @@
 package edu.java.scrapper.clients;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import edu.java.scrapper.client.GitHubClient;
 import edu.java.scrapper.client.impl.GitHubClientImpl;
 import edu.java.scrapper.configuration.retry.RetryProperties;
@@ -9,7 +8,6 @@ import edu.java.scrapper.exception.custom.ResourceUnavailableException;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -27,16 +25,12 @@ import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.junit.Assert.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class GitHubClientTest {
-    private static WireMockServer wireMockServer;
-    private static String baseUrl;
+public class GitHubClientTest extends AbstractWiremockTest {
     private static RetryProperties retryProperties;
 
     @BeforeAll
     public static void setUp() {
-        wireMockServer = new WireMockServer(3003);
-        wireMockServer.start();
-        baseUrl = "http://localhost:" + wireMockServer.port();
+        AbstractWiremockTest.setUpWireMockServer();
         RetryBackoffSpec retry = Retry.backoff(5, Duration.ofMillis(10))
             .filter(throwable -> throwable instanceof ResourceUnavailableException ||
                 throwable instanceof WebClientRequestException)
@@ -44,11 +38,6 @@ public class GitHubClientTest {
                 throw new ResourceUnavailableException("Try later", HttpStatus.SERVICE_UNAVAILABLE);
             });
         retryProperties = new RetryProperties(List.of(HttpStatus.FORBIDDEN), retry);
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        wireMockServer.stop();
     }
 
     @Test

@@ -1,6 +1,5 @@
 package edu.java.scrapper.clients;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
 import edu.java.scrapper.client.StackOverflowClient;
 import edu.java.scrapper.client.impl.StackOverflowClientImpl;
 import edu.java.scrapper.configuration.retry.RetryProperties;
@@ -10,8 +9,6 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.Arrays;
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,21 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(MockitoExtension.class)
-public class StackOverflowClientTest {
-    private static WireMockServer wireMockServer;
-    private static String baseUrl;
-
-    @BeforeAll
-    public static void setUp() {
-        wireMockServer = new WireMockServer(3003);
-        wireMockServer.start();
-        baseUrl = "http://localhost:" + wireMockServer.port();
-    }
-
-    @AfterAll
-    public static void tearDown() {
-        wireMockServer.stop();
-    }
+public class StackOverflowClientTest extends AbstractWiremockTest {
 
     @Test
     @DisplayName("Тестирование получения ответов по идентификатору вопроса")
